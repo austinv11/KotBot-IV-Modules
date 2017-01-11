@@ -23,6 +23,7 @@ import javax.script.ScriptEngine
 import javax.script.ScriptException
 
 object: IModule {
+    
     override fun enable(client: IDiscordClient): Boolean {
         scanForModuleDependentObjects()
         return true
@@ -48,10 +49,17 @@ object: IModule {
                 "java.time.format", "java.util", "java.util.concurrent", "java.util.concurrent.atomic", "java.util.function", 
                 "java.util.regex", "java.util.stream", "sx.blah.discord", "sx.blah.discord.util", "sx.blah.discord.util.audio", 
                 "sx.blah.discord.util.audio.events", "sx.blah.discord.util.audio.processors", "sx.blah.discord.util.audio.providers",
-                "sx.blah.discord.modules", "sx.blah.discord.handle.obj", "sx.blah.discord.handle.impl.events", /*TODO: Change when deprecations are removed*/
-                "sx.blah.discord.api", "sx.blah.discord.api.events", "com.austinv11.kotbot.core", "com.austinv11.kotbot.core.util",
-                "com.austinv11.kotbot.core.scripting", "com.austinv11.kotbot.core.db", "com.austinv11.kotbot.core.config",
-                "com.austinv11.kotbot.core.api", "com.austinv11.kotbot.core.api.commands")
+                "sx.blah.discord.modules", "sx.blah.discord.handle.obj", "sx.blah.discord.handle.impl.events.user", 
+                "sx.blah.discord.handle.impl.events.shard", "sx.blah.discord.handle.impl.events.module", 
+                "sx.blah.discord.handle.impl.events.guild", "sx.blah.discord.handle.impl.events.guild.voice", 
+                "sx.blah.discord.handle.impl.events.guild.voice.user", "sx.blah.discord.handle.impl.events.guild.role", 
+                "sx.blah.discord.handle.impl.events.guild.member", "sx.blah.discord.handle.impl.events.guild.channel", 
+                "sx.blah.discord.handle.impl.events.guild.channel.message", 
+                "sx.blah.discord.handle.impl.events.guild.channel.message.reaction", 
+                "sx.blah.discord.handle.impl.events.guild.channel.webhook", "sx.blah.discord.api", "sx.blah.discord.api.events", 
+                "com.austinv11.kotbot.core", "com.austinv11.kotbot.core.util", "com.austinv11.kotbot.core.scripting", 
+                "com.austinv11.kotbot.core.db", "com.austinv11.kotbot.core.config", "com.austinv11.kotbot.core.api", 
+                "com.austinv11.kotbot.core.api.commands")
         val scriptFactory = KotlinJsr223JvmDaemonLocalEvalScriptEngineFactory() //Skipping the indirect invocation from java because the shadow jar breaks the javax service
         val engine: ScriptEngine
             get() = scriptFactory.scriptEngine
