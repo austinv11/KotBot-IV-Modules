@@ -18,7 +18,6 @@ import com.j256.ormlite.table.DatabaseTable
 import com.j256.ormlite.table.TableUtils
 import org.wasabifx.wasabi.app.AppConfiguration
 import sx.blah.discord.api.IDiscordClient
-import sx.blah.discord.api.internal.json.objects.EmbedObject
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.modules.IModule
 import sx.blah.discord.util.EmbedBuilder
@@ -95,7 +94,7 @@ object: IModule {
             webhooks.stop()
         }
 
-        fun GithubEvent.createEmbed(): EmbedObject? {
+        fun GithubEvent.createEmbed(): CommandRegistry.CommandListener.ObjectHolder<EmbedBuilder>? {
             val builder = createEmbedBuilder()
                     .withAuthorName(this.sender.login)
                     .withAuthorIcon(this.sender.avatar_url)
@@ -158,13 +157,13 @@ object: IModule {
                         "labeled" -> {return null}
                         "unlabeled" -> {return null}
                         "opened" -> {
-                            builder.withTitle("Issue #${this.issue.id} \"${this.issue.title}\" Opened")
+                            builder.withTitle("Issue #${this.issue.number} \"${this.issue.title}\" Opened")
                                     .withUrl(this.issue.html_url)
                                     .withDescription(this.issue.body)
                                     .withColor(Color.GREEN)
                         }
                         "edited" -> {
-                            builder.withTitle("Issue #${this.issue.id} \"${this.issue.title}\" Modified")
+                            builder.withTitle("Issue #${this.issue.number} \"${this.issue.title}\" Modified")
                                     .withUrl(this.issue.html_url)
                                     .withDescription(this.issue.body)
                                     .withColor(Color.ORANGE)
@@ -172,13 +171,13 @@ object: IModule {
                         "milestoned" -> {return null}
                         "demilestoned" -> {return null}
                         "closed" -> {
-                            builder.withTitle("Issue #${this.issue.id} \"${this.issue.title}\" Closed")
+                            builder.withTitle("Issue #${this.issue.number} \"${this.issue.title}\" Closed")
                                     .withUrl(this.issue.html_url)
                                     .withDescription(this.issue.body)
                                     .withColor(Color.RED)
                         }
                         "reopened" -> {
-                            builder.withTitle("Issue #${this.issue.id} \"${this.issue.title}\" Reopened")
+                            builder.withTitle("Issue #${this.issue.number} \"${this.issue.title}\" Reopened")
                                     .withUrl(this.issue.html_url)
                                     .withDescription(this.issue.body)
                                     .withColor(Color.GREEN)
@@ -251,32 +250,37 @@ object: IModule {
                     }
                 }
                 is PushEvent -> {
+                    if (this.commits.isEmpty())
+                        return null
+                    
                     builder.withTitle("Commits to ${this.ref.removePrefix("refs/heads/")}")
                             .withDescription(buildString {
                                 this@createEmbed.commits.forEach {
                                     append("[`${it.id.substring(0, 7)}` ") 
                                     append("${it.message.lines()[0]}](${it.url}) ")
-                                    appendln("[[${it.author.name}](https://github.com/${it.author.username})]")
+                                    append("[[${it.author.name}]](https://github.com/${it.author.username})")
                                 }
                             })
                             .withColor(Color.GREEN)
                 }
                 is ReleaseEvent -> {
-                    builder.withTitle("Release ${this.release.name}")
-                            .withUrl(this.release.html_url)
-                            .withDescription(this.release.body)
-                            .withColor(Color.GREEN)
+                    if (this.action == "published") {
+                        builder.withTitle("Release ${this.release.name}")
+                                .withUrl(this.release.html_url)
+                                .withDescription(this.release.body)
+                                .withColor(Color.GREEN)
+                    }
                 }
                 else -> {
                     builder.withTitle(this::class.simpleName)
                             .withDescription("This event doesn't have built-in support yet")
                 }
             }
-            return builder.appendDescription("\n\n[${this.repository.full_name}](${this.repository.html_url})").build()
+            return CommandRegistry.CommandListener.ObjectHolder(builder.appendDescription("\n__[${this.repository.full_name}](${this.repository.html_url})__"))
         }
         
         override fun inject() {
-            webhooks = Webhooks("/github", AppConfiguration(port = 4000))
+            webhooks = Webhooks("/github", AppConfiguration(port = 4567))
             webhooks.events.on<GithubEvent> { 
                 if (this.repository.html_url.contains(KOTBOT_REPO, true) || this.repository.html_url.contains(MODULE_REPO, true)) {
                     if (this.repository.html_url.contains(KOTBOT_REPO, true) && this is PushEvent) { //Update bot
@@ -305,7 +309,9 @@ object: IModule {
                     val configurations = WebhookConfiguration.WEBHOOK_DAO.queryForFieldValuesArgs(mapOf(WebhookConfiguration.REPO to this.repository.full_name.toLowerCase()))
                     configurations.forEach { 
                         if (it.events.split(";").contains(this::class.simpleName!!.toLowerCase().removeSuffix("event"))) {
-                            buffer { CLIENT.getChannelByID(it.channel)?.sendMessage(this.createEmbed()) }
+                            val embed = this.createEmbed()
+                            if (embed != null)
+                                buffer { embed.parseToMessage(CLIENT.getChannelByID(it.channel)!!) }
                         }
                     }
                 }
