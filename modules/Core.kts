@@ -5,11 +5,15 @@ import com.austinv11.kotbot.core.config.Config
 import com.austinv11.kotbot.core.util.context
 import com.austinv11.kotbot.core.util.createEmbedBuilder
 import com.austinv11.kotbot.core.util.scanForModuleDependentObjects
+import com.austinv11.kotbot.core.api.ModuleDependentIListener
+import com.austinv11.kotbot.core.util.buffer
 import sx.blah.discord.Discord4J
 import sx.blah.discord.api.IDiscordClient
 import sx.blah.discord.modules.IModule
 import sx.blah.discord.util.BotInviteBuilder
 import sx.blah.discord.util.EmbedBuilder
+import sx.blah.discord.handle.obj.IPrivateChannel
+import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import java.io.File
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -44,6 +48,14 @@ object: IModule {
 
     override fun disable() {
        restart() //Uh, this should never happen, otherwise things are borked
+    }
+
+    inner class PMListener : ModuleDependentIListener<MessageReceivedEvent>(CLIENT)  {
+        override fun handle(event: MessageReceivedEvent) {
+            if (event.channel.isPrivate && (event.channel as IPrivateChannel).recipient != OWNER) {
+                buffer { OWNER.orCreatePMChannel.sendMessage("__Message from ${event.author.mention()}:__\n${event.message.content}") }
+            }
+        }
     }
     
     inner class HelpCommand() : Command("This command helps users use KotBot", arrayOf("?", "h")) {
