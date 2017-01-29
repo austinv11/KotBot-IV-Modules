@@ -326,7 +326,7 @@ object: IModule { //TODO: Persist pending requests?
                             appendln(" (${Config.command_error_format.format("Conflicts with: ${conflicts.map { it.bot.asMention() }.joinToString(", ")}")})")
                         appendln("Justification: ${request.justification ?: "none"}")
                         appendln()
-                        appendln("*To respond to this request use `${Config.command_prefix}bots accept ${request.id}` or `${Config.command_prefix}bots reject ${request.id} optional:justification`*")
+                        appendln("*To respond to this request use `${Config.command_prefix}bots accept ${request.id}` and then add the bot or `${Config.command_prefix}bots reject ${request.id} optional:justification`*")
                     })
 
             buffer { channel.sendMessage(message.build()) }
