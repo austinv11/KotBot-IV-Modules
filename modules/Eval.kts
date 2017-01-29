@@ -129,12 +129,12 @@ object: IModule {
             try {
                 val result = engine.eval(buildString {
                     defaultImports.forEach { append("import $it.*;") }
-                    appendln()
+                    appendln("\n")
                     append("System.setIn(bindings.get(\"_IN\") as InputStream);")
                     append("System.setOut(bindings.get(\"_OUT\") as PrintStream);")
-                    appendln("System.setErr(bindings.get(\"_OUT\") as PrintStream)")
-                    appendln("val context = bindings.get(\"_CONTEXT\") as CommandContext")
-                    appendln(script.removeSurrounding("```").removePrefix("kotlin").removeSurrounding("`").trim())
+                    append("System.setErr(bindings.get(\"_OUT\") as PrintStream)\n")
+                    append("val context = bindings.get(\"_CONTEXT\") as CommandContext\n")
+                    append(script.removeSurrounding("```").removePrefix("kotlin").removeSurrounding("`").trim())
                 })
                 builder.appendField("Output", "```\n$result```", false)
             } catch (e: ScriptException) {

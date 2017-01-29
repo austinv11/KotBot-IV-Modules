@@ -14,13 +14,17 @@ import java.io.File
 import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.reflect.KFunction
-import kotlin.reflect.findAnnotation
-import kotlin.reflect.functions
+import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.functions
+import kotlin.reflect.full.valueParameters
 import kotlin.reflect.jvm.jvmErasure
-import kotlin.reflect.valueParameters
 
 enum class ModuleActions {
     ENABLE, DISABLE
+}
+
+fun String.removePrefix(prefix: String, predicate: String.() -> Boolean): String {
+    return if (predicate.invoke(this)) this.removePrefix(prefix) else this
 }
 
 object: IModule {
@@ -97,7 +101,7 @@ object: IModule {
                                             append("Optional: ")
                                         append("*${if (!annotation.nameOverride.isNullOrEmpty()) annotation.nameOverride else param.name}*")
                                         val paramClass = param.type.jvmErasure
-                                        append(": ${if (paramClass.java.isEnum) paramClass.java.enumConstants.map { it.toString().toLowerCase() }.joinToString() else paramClass.simpleName?.toLowerCase()}")
+                                        append(": ${if (paramClass.java.isEnum) paramClass.java.enumConstants.map { it.toString().toLowerCase() }.joinToString() else paramClass.simpleName!!.toLowerCase().removePrefix("i", { this != "int"})}")
                                         appendln(" - ${annotation.description}")
                                     }
                                 }
