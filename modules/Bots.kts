@@ -310,7 +310,7 @@ object: IModule { //TODO: Persist pending requests?
 
             pendingRequests.add(request)
 
-            val channel = if (config.channel == null) context.channel.guild.owner.orCreatePMChannel else context.channel.guild.getChannelByID(config.channel)
+            val channel = context.channel.guild.getChannelByID(config.channel)
             val conflicts = config.bots!!.distinct().filter { it.prefix == request.prefix }
             val message = createEmbedBuilder()
                     .withTitle("Bot Addition Request #${request.id}")
@@ -323,7 +323,7 @@ object: IModule { //TODO: Persist pending requests?
                         if (conflicts.isEmpty())
                             appendln()
                         else
-                            appendln(" (${Config.command_error_format.format("Conflicts with: ${conflicts.map { it.bot.asMention() }.joinToString(", ")}")})")
+                            appendln(" ${Config.command_error_format.format("Conflicts with: ${conflicts.map { it.bot.asMention() }.joinToString(", ")}")}")
                         appendln("Justification: ${request.justification ?: "none"}")
                         appendln()
                         appendln("*To respond to this request use `${Config.command_prefix}bots accept ${request.id}` and then add the bot or `${Config.command_prefix}bots reject ${request.id} optional:justification`*")
