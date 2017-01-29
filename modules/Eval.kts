@@ -129,7 +129,7 @@ object: IModule {
             try {
                 val result = engine.eval(buildString {
                     defaultImports.forEach { append("import $it.*;") }
-                    appendln("\n")
+                    append("\n")
                     append("System.setIn(bindings.get(\"_IN\") as InputStream);")
                     append("System.setOut(bindings.get(\"_OUT\") as PrintStream);")
                     append("System.setErr(bindings.get(\"_OUT\") as PrintStream)\n")
