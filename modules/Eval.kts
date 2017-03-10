@@ -43,9 +43,9 @@ object: IModule {
             aliases = arrayOf("evaluate", "script", "kotlin"), requiredLevel = PermissionLevel.ADMINISTRATOR) {
         
         val defaultImports = arrayOf("kotlin", "kotlin.annotation", "kotlin.collections", "kotlin.comparisons", 
-                "kotlin.concurrent", "kotlin.coroutines", "kotlin.io", "kotlin.jvm", "kotlin.jvm.functions", 
+                "kotlin.concurrent", "kotlin.coroutines", "kotlin.io", "kotlin.jvm", "kotlin.jvm.functions",
                 "kotlin.properties", "kotlin.ranges", "kotlin.reflect", "kotlin.reflect.jvm", "kotlin.system", "kotlin.text", 
-                "java.io", "java.lang", "java.lang.reflect", "java.math", "java.nio", "java.nio.file", "java.time", 
+                "java.io", "java.lang", "java.lang.reflect", "java.math", "java.nio", "java.nio.file", "java.time", "java.net",
                 "java.time.format", "java.util", "java.util.concurrent", "java.util.concurrent.atomic", "java.util.function", 
                 "java.util.regex", "java.util.stream", "sx.blah.discord", "sx.blah.discord.util", "sx.blah.discord.util.audio", 
                 "sx.blah.discord.util.audio.events", "sx.blah.discord.util.audio.processors", "sx.blah.discord.util.audio.providers",
